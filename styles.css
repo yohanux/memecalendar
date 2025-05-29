@@ -98,10 +98,27 @@ body {
 }
 
 @media screen and (max-width: 809px) {
+    body {
+        background-color: white;
+    }
+    
+    .container {
+        background-color: transparent;
+        padding: 1rem 20px;
+        border-radius: 0;
+        box-shadow: none;
+        width: 100%;
+    }
+    
+    #today-date {
+        font-size: 16px;
+    }
+    
     #special-day {
         display: flex;
         flex-direction: column;
         align-items: center;
         line-height: 1.4;
+        font-size: 20px;
     }
 } 
