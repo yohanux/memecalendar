@@ -1,7 +1,8 @@
 async function loadMemeData() {
     try {
         console.log('CSV 파일 로딩 시작');
-        const response = await fetch('memes.csv');
+        const basePath = getBasePath();
+        const response = await fetch(`${basePath}/memes.csv`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -65,6 +66,19 @@ function formatSpecialDay(specialDay, years, format) {
     }
 }
 
+// 저장소 이름을 포함한 기본 경로 설정
+const getBasePath = () => {
+    // GitHub Pages인 경우 저장소 이름을 포함한 경로 반환
+    const isGitHubPages = window.location.hostname.includes('github.io');
+    if (isGitHubPages) {
+        // URL에서 저장소 이름 추출
+        const pathSegments = window.location.pathname.split('/');
+        const repoName = pathSegments[1]; // 첫 번째 세그먼트가 저장소 이름
+        return `/${repoName}`;
+    }
+    return ''; // 로컬 환경에서는 빈 문자열 반환
+};
+
 async function updateTodayMeme() {
     const today = new Date();
     const formattedDate = formatDate(today);
@@ -102,16 +116,14 @@ async function updateTodayMeme() {
         const monthStr = padNumber(month);
         const dayStr = padNumber(day);
         const timestamp = new Date().getTime();
-        const baseImageUrl = `/resource/${monthStr}${dayStr}.webp`;
+        const basePath = getBasePath();
+        const baseImageUrl = `${basePath}/resource/${monthStr}${dayStr}.webp`;
         const imageUrl = `${baseImageUrl}?t=${timestamp}`;
         
-        console.log('날짜 정보:', {
-            월: month,
-            일: day,
-            패딩된_월: monthStr,
-            패딩된_일: dayStr
+        console.log('경로 정보:', {
+            기본경로: basePath,
+            이미지경로: baseImageUrl
         });
-        console.log('불러올 이미지 경로:', baseImageUrl);
         
         const formattedSpecialDay = formatSpecialDay(specialDay, years, format);
         if (window.innerWidth <= 809) {
@@ -125,7 +137,7 @@ async function updateTodayMeme() {
         imgElement.onerror = () => {
             console.error('이미지 로드 실패. 파일 경로 확인:', baseImageUrl);
             // 이미지 로드 실패시 기본 이미지로 대체
-            imgElement.src = `/resource/default.webp?t=${timestamp}`;
+            imgElement.src = `${basePath}/resource/default.webp?t=${timestamp}`;
         };
         imgElement.onload = () => {
             console.log('이미지 로드 성공:', baseImageUrl);
@@ -136,7 +148,8 @@ async function updateTodayMeme() {
         console.log('오늘 날짜의 데이터를 찾지 못했습니다.');
         document.getElementById('special-day').textContent = '오늘은 특별한 날이 없습니다.';
         const timestamp = new Date().getTime();
-        document.getElementById('meme-image').src = `/resource/default.webp?t=${timestamp}`;
+        const basePath = getBasePath();
+        document.getElementById('meme-image').src = `${basePath}/resource/default.webp?t=${timestamp}`;
     }
 }
 
