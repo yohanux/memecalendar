@@ -129,7 +129,7 @@ async function updateTodayMeme() {
         if (window.innerWidth <= 809) {
             document.getElementById('special-day').innerHTML = formattedSpecialDay;
         } else {
-            document.getElementById('special-day').innerHTML = `오늘은 <strong>${formattedSpecialDay}</strong> 입니다!`;
+            document.getElementById('special-day').innerHTML = `오늘은 <strong>${formattedSpecialDay}</strong> 입니다`;
         }
 
         // 이미지 로드 처리
