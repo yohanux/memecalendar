@@ -162,16 +162,34 @@ async function updateTodayMeme() {
 
 // 메타태그 업데이트 함수
 function updateMetaTags(imageUrl, description) {
-    // URL을 절대 경로로 변환
-    const absoluteImageUrl = new URL(imageUrl, window.location.href).href;
+    // 현재 페이지의 완전한 URL
+    const pageUrl = window.location.href.split('?')[0]; // 쿼리 파라미터 제거
+    
+    // 이미지 URL을 완전한 절대 URL로 변환
+    let absoluteImageUrl;
+    if (imageUrl.startsWith('http')) {
+        absoluteImageUrl = imageUrl;
+    } else {
+        // 상대 경로인 경우 현재 도메인 기준으로 완전한 URL 생성
+        const baseUrl = window.location.origin;
+        absoluteImageUrl = new URL(imageUrl.split('?')[0], baseUrl).href; // 쿼리 파라미터 제거
+    }
     
     // Open Graph 메타태그 업데이트
-    document.getElementById('og-image').setAttribute('content', absoluteImageUrl);
+    document.getElementById('og-url').setAttribute('content', pageUrl);
     document.getElementById('og-title').setAttribute('content', description);
+    document.getElementById('og-image').setAttribute('content', absoluteImageUrl);
     
     // Twitter Card 메타태그 업데이트
-    document.getElementById('twitter-image').setAttribute('content', absoluteImageUrl);
+    document.getElementById('twitter-url').setAttribute('content', pageUrl);
     document.getElementById('twitter-title').setAttribute('content', description);
+    document.getElementById('twitter-image').setAttribute('content', absoluteImageUrl);
+    
+    console.log('메타태그 업데이트됨:', {
+        url: pageUrl,
+        image: absoluteImageUrl,
+        description: description
+    });
 }
 
 // 페이지 로드시 실행
