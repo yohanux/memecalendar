@@ -161,7 +161,7 @@ async function updateTodayMeme() {
 }
 
 // 메타태그 업데이트 함수
-function updateMetaTags(imageUrl, description) {
+async function updateMetaTags(imageUrl, description) {
     // 현재 페이지의 완전한 URL
     const pageUrl = window.location.href.split('?')[0]; // 쿼리 파라미터 제거
     
@@ -174,22 +174,52 @@ function updateMetaTags(imageUrl, description) {
         const baseUrl = window.location.origin;
         absoluteImageUrl = new URL(imageUrl.split('?')[0], baseUrl).href; // 쿼리 파라미터 제거
     }
-    
-    // Open Graph 메타태그 업데이트
-    document.getElementById('og-url').setAttribute('content', pageUrl);
-    document.getElementById('og-title').setAttribute('content', description);
-    document.getElementById('og-image').setAttribute('content', absoluteImageUrl);
-    
-    // Twitter Card 메타태그 업데이트
-    document.getElementById('twitter-url').setAttribute('content', pageUrl);
-    document.getElementById('twitter-title').setAttribute('content', description);
-    document.getElementById('twitter-image').setAttribute('content', absoluteImageUrl);
-    
-    console.log('메타태그 업데이트됨:', {
-        url: pageUrl,
-        image: absoluteImageUrl,
-        description: description
-    });
+
+    // 이미지 크기를 가져오는 Promise를 반환하는 함수
+    function getImageDimensions(url) {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => {
+                resolve({
+                    width: img.width,
+                    height: img.height
+                });
+            };
+            img.onerror = () => {
+                reject(new Error('Failed to load image'));
+            };
+            img.src = url;
+        });
+    }
+
+    try {
+        // 이미지 크기 가져오기
+        const dimensions = await getImageDimensions(absoluteImageUrl);
+        
+        // Open Graph 메타태그 업데이트
+        document.getElementById('og-url').setAttribute('content', pageUrl);
+        document.getElementById('og-title').setAttribute('content', description);
+        document.getElementById('og-image').setAttribute('content', absoluteImageUrl);
+        document.getElementById('og-image:width').setAttribute('content', dimensions.width.toString());
+        document.getElementById('og-image:height').setAttribute('content', dimensions.height.toString());
+        
+        // Twitter Card 메타태그 업데이트
+        document.getElementById('twitter-url').setAttribute('content', pageUrl);
+        document.getElementById('twitter-title').setAttribute('content', description);
+        document.getElementById('twitter-image').setAttribute('content', absoluteImageUrl);
+        
+        console.log('메타태그 업데이트됨:', {
+            url: pageUrl,
+            image: absoluteImageUrl,
+            description: description,
+            dimensions: dimensions
+        });
+    } catch (error) {
+        console.error('이미지 크기 가져오기 실패:', error);
+        // 이미지 로드 실패 시 기본 크기 설정
+        document.getElementById('og-image:width').setAttribute('content', '1200');
+        document.getElementById('og-image:height').setAttribute('content', '630');
+    }
 }
 
 // 페이지 로드시 실행
