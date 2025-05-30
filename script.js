@@ -175,8 +175,8 @@ async function shareContent() {
         const imageElement = document.getElementById('meme-image');
         const currentUrl = window.location.href;
         
-        // 공유할 텍스트 포맷팅
-        const shareText = `${specialDayText}\n${currentUrl}`;
+        // 공유할 텍스트 포맷팅 (오늘은 뒤에 두 칸 공백)
+        const shareText = `오늘은  ${specialDayText.replace('오늘은 ', '').replace(' 입니다', '')} 입니다!\n${currentUrl}`;
 
         if (navigator.share && navigator.canShare) {
             // 이미지를 Blob으로 변환
