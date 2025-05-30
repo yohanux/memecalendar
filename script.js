@@ -175,52 +175,28 @@ async function shareContent() {
         const currentUrl = window.location.href;
 
         if (navigator.share) {
-            try {
-                await navigator.share({
-                    title: '오늘의 밈 캘린더',
-                    text: document.getElementById('special-day').textContent,
-                    url: currentUrl
-                });
-                console.log('공유 성공!');
-            } catch (shareError) {
-                // 공유 실패 시 링크 복사로 대체
-                await copyToClipboard();
-            }
+            await navigator.share({
+                title: '오늘의 밈 캘린더',
+                text: document.getElementById('special-day').textContent,
+                url: currentUrl
+            });
         } else {
-            // Web Share API를 지원하지 않는 경우 링크 복사
-            await copyToClipboard();
+            await navigator.clipboard.writeText(currentUrl);
+            const shareButton = document.getElementById('share-button');
+            const originalText = shareButton.innerHTML;
+            shareButton.innerHTML = `
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="currentColor"/>
+                </svg>
+                링크 복사됨!
+            `;
+            
+            setTimeout(() => {
+                shareButton.innerHTML = originalText;
+            }, 3000);
         }
     } catch (error) {
         console.error('공유 처리 중:', error);
-        if (error.name !== 'AbortError' && error.name !== 'NotAllowedError') {
-            alert('공유 중 오류가 발생했습니다.');
-        }
-    }
-}
-
-// 클립보드에 링크 복사하는 함수
-async function copyToClipboard() {
-    try {
-        const currentUrl = window.location.href;
-        await navigator.clipboard.writeText(currentUrl);
-        
-        // 복사 성공 알림 표시
-        const shareButton = document.getElementById('share-button');
-        const originalText = shareButton.innerHTML;
-        shareButton.innerHTML = `
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="currentColor"/>
-            </svg>
-            링크 복사됨!
-        `;
-        
-        // 3초 후 원래 버튼으로 복구
-        setTimeout(() => {
-            shareButton.innerHTML = originalText;
-        }, 3000);
-    } catch (err) {
-        console.error('클립보드 복사 실패:', err);
-        alert('링크 복사에 실패했습니다.');
     }
 }
 
