@@ -150,20 +150,15 @@ async function updateTodayMeme() {
         // 이미지 로드 처리
         const imgElement = document.getElementById('meme-image');
         imgElement.onerror = () => {
-            const defaultImageUrl = '/resource/default.webp';
+            const defaultImageUrl = '/resource/thumbnail.png';
             imgElement.src = `${basePath}${defaultImageUrl}`;
-            updateMetaTags(defaultImageUrl, '오늘은 특별한 날이 없습니다.');
-        };
-        imgElement.onload = () => {
-            updateMetaTags(imageUrl, `오늘은 ${formattedSpecialDay} 입니다`);
         };
         imgElement.src = `${basePath}${imageUrl}`;
         
     } else {
         document.getElementById('special-day').textContent = '오늘은 특별한 날이 없습니다.';
-        const defaultImageUrl = '/resource/default.webp';
+        const defaultImageUrl = '/resource/thumbnail.png';
         document.getElementById('meme-image').src = `${basePath}${defaultImageUrl}`;
-        updateMetaTags(defaultImageUrl, '오늘은 특별한 날이 없습니다.');
     }
 }
 
@@ -175,32 +170,54 @@ window.addEventListener('resize', updateTodayMeme);
 
 // 공유 기능 구현
 async function shareContent() {
-    const currentUrl = window.location.href;
-    const shareData = {
-        title: '오늘의 밈 캘린더',
-        text: document.getElementById('special-day').textContent,
-        url: currentUrl
-    };
-
     try {
-        // 공유 시트 시도
-        await navigator.share(shareData);
+        const specialDayText = document.getElementById('special-day').textContent;
+        const imageElement = document.getElementById('meme-image');
+        const currentUrl = window.location.href;
+        
+        // 공유할 텍스트 포맷팅
+        const shareText = `${specialDayText}\n${currentUrl}`;
+
+        if (navigator.share && navigator.canShare) {
+            // 이미지를 Blob으로 변환
+            const response = await fetch(imageElement.src);
+            const blob = await response.blob();
+            const imageFile = new File([blob], 'meme.webp', { type: 'image/webp' });
+
+            // 공유 데이터 생성
+            const shareData = {
+                files: [imageFile],
+                text: shareText
+            };
+
+            // 공유 가능한지 확인
+            if (navigator.canShare(shareData)) {
+                await navigator.share(shareData);
+            } else {
+                // 이미지 공유가 지원되지 않으면 텍스트만 공유
+                await navigator.share({
+                    text: shareText
+                });
+            }
+        } else {
+            // Web Share API가 지원되지 않는 경우 클립보드에 복사
+            await navigator.clipboard.writeText(shareText);
+            
+            const shareButton = document.getElementById('share-button');
+            const originalText = shareButton.innerHTML;
+            shareButton.innerHTML = `
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="currentColor"/>
+                </svg>
+                복사 완료!
+            `;
+            
+            setTimeout(() => {
+                shareButton.innerHTML = originalText;
+            }, 3000);
+        }
     } catch (error) {
-        // 공유 시트가 지원되지 않거나 실패한 경우 링크 복사
-        await navigator.clipboard.writeText(currentUrl);
-        
-        const shareButton = document.getElementById('share-button');
-        const originalText = shareButton.innerHTML;
-        shareButton.innerHTML = `
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="currentColor"/>
-            </svg>
-            링크 복사됨!
-        `;
-        
-        setTimeout(() => {
-            shareButton.innerHTML = originalText;
-        }, 3000);
+        console.error('공유 처리 중 오류:', error);
     }
 }
 
