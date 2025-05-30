@@ -172,22 +172,14 @@ window.addEventListener('resize', updateTodayMeme);
 // 공유 기능 구현
 async function shareContent() {
     try {
-        // 현재 표시된 특별한 날 텍스트 가져오기
-        const specialDayText = document.getElementById('special-day').textContent;
-        const imageElement = document.getElementById('meme-image');
-        const imageUrl = imageElement.src;
-
-        // 이미지를 Blob으로 변환
-        const response = await fetch(imageUrl);
-        const blob = await response.blob();
-        const imageFile = new File([blob], 'meme.webp', { type: 'image/webp' });
+        const currentUrl = window.location.href;
 
         if (navigator.share) {
             try {
                 await navigator.share({
                     title: '오늘의 밈 캘린더',
-                    text: specialDayText,
-                    files: [imageFile]
+                    text: document.getElementById('special-day').textContent,
+                    url: currentUrl
                 });
                 console.log('공유 성공!');
             } catch (shareError) {
