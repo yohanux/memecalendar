@@ -150,14 +150,14 @@ async function updateTodayMeme() {
         // 이미지 로드 처리
         const imgElement = document.getElementById('meme-image');
         imgElement.onerror = () => {
-            const defaultImageUrl = '/resource/thumbnail.png';
+            const defaultImageUrl = '/resource/default.webp';
             imgElement.src = `${basePath}${defaultImageUrl}`;
         };
         imgElement.src = `${basePath}${imageUrl}`;
         
     } else {
         document.getElementById('special-day').textContent = '오늘은 특별한 날이 없습니다.';
-        const defaultImageUrl = '/resource/thumbnail.png';
+        const defaultImageUrl = '/resource/default.webp';
         document.getElementById('meme-image').src = `${basePath}${defaultImageUrl}`;
     }
 }
