@@ -68,15 +68,14 @@ function formatSpecialDay(specialDay, years, format) {
 
 // 저장소 이름을 포함한 기본 경로 설정
 const getBasePath = () => {
-    // GitHub Pages인 경우 저장소 이름을 포함한 경로 반환
     const isGitHubPages = window.location.hostname.includes('github.io');
     if (isGitHubPages) {
-        // URL에서 저장소 이름 추출
+        // GitHub Pages인 경우 전체 URL 반환
         const pathSegments = window.location.pathname.split('/');
-        const repoName = pathSegments[1]; // 첫 번째 세그먼트가 저장소 이름
-        return `/${repoName}`;
+        const repoName = pathSegments[1];
+        return `${window.location.origin}/${repoName}`;
     }
-    return ''; // 로컬 환경에서는 빈 문자열 반환
+    return window.location.origin; // 로컬 환경에서는 origin 반환
 };
 
 // 메타태그 업데이트 함수
@@ -89,8 +88,9 @@ function updateMetaTags(imageUrl, description) {
     if (imageUrl.startsWith('http')) {
         absoluteImageUrl = imageUrl;
     } else {
-        const baseUrl = window.location.origin;
-        absoluteImageUrl = new URL(imageUrl.split('?')[0], baseUrl).href;
+        // 상대 경로를 절대 URL로 변환
+        const basePath = getBasePath();
+        absoluteImageUrl = `${basePath}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`.split('?')[0];
     }
 
     // Open Graph 메타태그 업데이트
@@ -120,12 +120,10 @@ async function updateTodayMeme() {
         return;
     }
 
-    // 헤더를 제외하고 날짜 매칭
     const month = today.getMonth() + 1;
     const day = today.getDate();
     const todayDateString = `${month}/${day}`;
     
-    // 헤더 제외하고 1번 인덱스부터 검색
     const todayRow = memeData.slice(1).find(row => {
         return row[0].trim() === todayDateString;
     });
@@ -140,7 +138,7 @@ async function updateTodayMeme() {
         const monthStr = padNumber(month);
         const dayStr = padNumber(day);
         const basePath = getBasePath();
-        const baseImageUrl = `${basePath}/resource/${monthStr}${dayStr}.webp`;
+        const imageUrl = `/resource/${monthStr}${dayStr}.webp`;
         
         const formattedSpecialDay = formatSpecialDay(specialDay, years, format);
         if (window.innerWidth <= 809) {
@@ -152,19 +150,19 @@ async function updateTodayMeme() {
         // 이미지 로드 처리
         const imgElement = document.getElementById('meme-image');
         imgElement.onerror = () => {
-            const defaultImageUrl = `${basePath}/resource/default.webp`;
-            imgElement.src = defaultImageUrl;
+            const defaultImageUrl = '/resource/default.webp';
+            imgElement.src = `${basePath}${defaultImageUrl}`;
             updateMetaTags(defaultImageUrl, '오늘은 특별한 날이 없습니다.');
         };
         imgElement.onload = () => {
-            updateMetaTags(baseImageUrl, `오늘은 ${formattedSpecialDay} 입니다`);
+            updateMetaTags(imageUrl, `오늘은 ${formattedSpecialDay} 입니다`);
         };
-        imgElement.src = baseImageUrl;
+        imgElement.src = `${basePath}${imageUrl}`;
         
     } else {
         document.getElementById('special-day').textContent = '오늘은 특별한 날이 없습니다.';
-        const defaultImageUrl = `${basePath}/resource/default.webp`;
-        document.getElementById('meme-image').src = defaultImageUrl;
+        const defaultImageUrl = '/resource/default.webp';
+        document.getElementById('meme-image').src = `${basePath}${defaultImageUrl}`;
         updateMetaTags(defaultImageUrl, '오늘은 특별한 날이 없습니다.');
     }
 }
