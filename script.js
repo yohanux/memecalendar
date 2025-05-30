@@ -138,29 +138,40 @@ async function updateTodayMeme() {
             console.error('이미지 로드 실패. 파일 경로 확인:', baseImageUrl);
             // 이미지 로드 실패시 기본 이미지로 대체
             imgElement.src = `${basePath}/resource/default.webp?t=${timestamp}`;
+            // 메타태그도 기본 이미지로 업데이트
+            updateMetaTags(`${basePath}/resource/default.webp`, formattedSpecialDay);
         };
         imgElement.onload = () => {
             console.log('이미지 로드 성공:', baseImageUrl);
+            // 메타태그 업데이트
+            updateMetaTags(baseImageUrl, formattedSpecialDay);
         };
         imgElement.src = imageUrl;
-        
-        // 메타태그 업데이트
-        const fullTitle = `오늘은 ${formattedSpecialDay} 입니다`;
-        document.getElementById('og-title').setAttribute('content', fullTitle);
-        document.getElementById('twitter-title').setAttribute('content', fullTitle);
-        
-        // 이미지 URL을 절대 경로로 변환
-        const absoluteImageUrl = new URL(imageUrl, window.location.href).href;
-        document.getElementById('og-image').setAttribute('content', absoluteImageUrl);
-        document.getElementById('twitter-image').setAttribute('content', absoluteImageUrl);
         
     } else {
         console.log('오늘 날짜의 데이터를 찾지 못했습니다.');
         document.getElementById('special-day').textContent = '오늘은 특별한 날이 없습니다.';
         const timestamp = new Date().getTime();
         const basePath = getBasePath();
-        document.getElementById('meme-image').src = `${basePath}/resource/default.webp?t=${timestamp}`;
+        const defaultImageUrl = `${basePath}/resource/default.webp`;
+        document.getElementById('meme-image').src = `${defaultImageUrl}?t=${timestamp}`;
+        // 데이터가 없는 경우에도 메타태그 업데이트
+        updateMetaTags(defaultImageUrl, '오늘은 특별한 날이 없습니다.');
     }
+}
+
+// 메타태그 업데이트 함수
+function updateMetaTags(imageUrl, description) {
+    // URL을 절대 경로로 변환
+    const absoluteImageUrl = new URL(imageUrl, window.location.href).href;
+    
+    // Open Graph 메타태그 업데이트
+    document.getElementById('og-image').setAttribute('content', absoluteImageUrl);
+    document.getElementById('og-title').setAttribute('content', description);
+    
+    // Twitter Card 메타태그 업데이트
+    document.getElementById('twitter-image').setAttribute('content', absoluteImageUrl);
+    document.getElementById('twitter-title').setAttribute('content', description);
 }
 
 // 페이지 로드시 실행
