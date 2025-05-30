@@ -171,32 +171,32 @@ window.addEventListener('resize', updateTodayMeme);
 
 // 공유 기능 구현
 async function shareContent() {
-    try {
-        const currentUrl = window.location.href;
+    const currentUrl = window.location.href;
+    const shareData = {
+        title: '오늘의 밈 캘린더',
+        text: document.getElementById('special-day').textContent,
+        url: currentUrl
+    };
 
-        if (navigator.share) {
-            await navigator.share({
-                title: '오늘의 밈 캘린더',
-                text: document.getElementById('special-day').textContent,
-                url: currentUrl
-            });
-        } else {
-            await navigator.clipboard.writeText(currentUrl);
-            const shareButton = document.getElementById('share-button');
-            const originalText = shareButton.innerHTML;
-            shareButton.innerHTML = `
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="currentColor"/>
-                </svg>
-                링크 복사됨!
-            `;
-            
-            setTimeout(() => {
-                shareButton.innerHTML = originalText;
-            }, 3000);
-        }
+    try {
+        // 공유 시트 시도
+        await navigator.share(shareData);
     } catch (error) {
-        console.error('공유 처리 중:', error);
+        // 공유 시트가 지원되지 않거나 실패한 경우 링크 복사
+        await navigator.clipboard.writeText(currentUrl);
+        
+        const shareButton = document.getElementById('share-button');
+        const originalText = shareButton.innerHTML;
+        shareButton.innerHTML = `
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="currentColor"/>
+            </svg>
+            링크 복사됨!
+        `;
+        
+        setTimeout(() => {
+            shareButton.innerHTML = originalText;
+        }, 3000);
     }
 }
 
