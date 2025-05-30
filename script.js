@@ -79,6 +79,36 @@ const getBasePath = () => {
     return ''; // 로컬 환경에서는 빈 문자열 반환
 };
 
+// 메타태그 업데이트 함수
+function updateMetaTags(imageUrl, description) {
+    // 현재 페이지의 완전한 URL
+    const pageUrl = window.location.href.split('?')[0];
+    
+    // 이미지 URL을 완전한 절대 URL로 변환
+    let absoluteImageUrl;
+    if (imageUrl.startsWith('http')) {
+        absoluteImageUrl = imageUrl;
+    } else {
+        const baseUrl = window.location.origin;
+        absoluteImageUrl = new URL(imageUrl.split('?')[0], baseUrl).href;
+    }
+
+    // Open Graph 메타태그 업데이트
+    document.querySelector('meta[property="og:url"]').setAttribute('content', pageUrl);
+    document.querySelector('meta[property="og:title"]').setAttribute('content', description);
+    document.querySelector('meta[property="og:image"]').setAttribute('content', absoluteImageUrl);
+    
+    // Twitter Card 메타태그 업데이트
+    document.querySelector('meta[name="twitter:title"]').setAttribute('content', description);
+    document.querySelector('meta[name="twitter:image"]').setAttribute('content', absoluteImageUrl);
+    
+    console.log('메타태그 업데이트됨:', {
+        url: pageUrl,
+        image: absoluteImageUrl,
+        description: description
+    });
+}
+
 async function updateTodayMeme() {
     const today = new Date();
     const formattedDate = formatDate(today);
@@ -95,16 +125,10 @@ async function updateTodayMeme() {
     const day = today.getDate();
     const todayDateString = `${month}/${day}`;
     
-    console.log('현재 날짜:', todayDateString);
-    console.log('검색할 데이터:', memeData);
-    
     // 헤더 제외하고 1번 인덱스부터 검색
     const todayRow = memeData.slice(1).find(row => {
-        console.log('비교 중:', row[0], todayDateString, row[0].trim() === todayDateString);
         return row[0].trim() === todayDateString;
     });
-    
-    console.log('찾은 데이터:', todayRow);
     
     if (todayRow) {
         const specialDay = todayRow[1].trim();
@@ -115,15 +139,8 @@ async function updateTodayMeme() {
         
         const monthStr = padNumber(month);
         const dayStr = padNumber(day);
-        const timestamp = new Date().getTime();
         const basePath = getBasePath();
         const baseImageUrl = `${basePath}/resource/${monthStr}${dayStr}.webp`;
-        const imageUrl = `${baseImageUrl}?t=${timestamp}`;
-        
-        console.log('경로 정보:', {
-            기본경로: basePath,
-            이미지경로: baseImageUrl
-        });
         
         const formattedSpecialDay = formatSpecialDay(specialDay, years, format);
         if (window.innerWidth <= 809) {
@@ -135,90 +152,20 @@ async function updateTodayMeme() {
         // 이미지 로드 처리
         const imgElement = document.getElementById('meme-image');
         imgElement.onerror = () => {
-            console.error('이미지 로드 실패. 파일 경로 확인:', baseImageUrl);
-            // 이미지 로드 실패시 기본 이미지로 대체
-            imgElement.src = `${basePath}/resource/default.webp?t=${timestamp}`;
-            // 메타태그도 기본 이미지로 업데이트
-            updateMetaTags(`${basePath}/resource/default.webp`, formattedSpecialDay);
+            const defaultImageUrl = `${basePath}/resource/default.webp`;
+            imgElement.src = defaultImageUrl;
+            updateMetaTags(defaultImageUrl, '오늘은 특별한 날이 없습니다.');
         };
         imgElement.onload = () => {
-            console.log('이미지 로드 성공:', baseImageUrl);
-            // 메타태그 업데이트
-            updateMetaTags(baseImageUrl, formattedSpecialDay);
+            updateMetaTags(baseImageUrl, `오늘은 ${formattedSpecialDay} 입니다`);
         };
-        imgElement.src = imageUrl;
+        imgElement.src = baseImageUrl;
         
     } else {
-        console.log('오늘 날짜의 데이터를 찾지 못했습니다.');
         document.getElementById('special-day').textContent = '오늘은 특별한 날이 없습니다.';
-        const timestamp = new Date().getTime();
-        const basePath = getBasePath();
         const defaultImageUrl = `${basePath}/resource/default.webp`;
-        document.getElementById('meme-image').src = `${defaultImageUrl}?t=${timestamp}`;
-        // 데이터가 없는 경우에도 메타태그 업데이트
+        document.getElementById('meme-image').src = defaultImageUrl;
         updateMetaTags(defaultImageUrl, '오늘은 특별한 날이 없습니다.');
-    }
-}
-
-// 메타태그 업데이트 함수
-async function updateMetaTags(imageUrl, description) {
-    // 현재 페이지의 완전한 URL
-    const pageUrl = window.location.href.split('?')[0]; // 쿼리 파라미터 제거
-    
-    // 이미지 URL을 완전한 절대 URL로 변환
-    let absoluteImageUrl;
-    if (imageUrl.startsWith('http')) {
-        absoluteImageUrl = imageUrl;
-    } else {
-        // 상대 경로인 경우 현재 도메인 기준으로 완전한 URL 생성
-        const baseUrl = window.location.origin;
-        absoluteImageUrl = new URL(imageUrl.split('?')[0], baseUrl).href; // 쿼리 파라미터 제거
-    }
-
-    // 이미지 크기를 가져오는 Promise를 반환하는 함수
-    function getImageDimensions(url) {
-        return new Promise((resolve, reject) => {
-            const img = new Image();
-            img.onload = () => {
-                resolve({
-                    width: img.width,
-                    height: img.height
-                });
-            };
-            img.onerror = () => {
-                reject(new Error('Failed to load image'));
-            };
-            img.src = url;
-        });
-    }
-
-    try {
-        // 이미지 크기 가져오기
-        const dimensions = await getImageDimensions(absoluteImageUrl);
-        
-        // Open Graph 메타태그 업데이트
-        document.getElementById('og-url').setAttribute('content', pageUrl);
-        document.getElementById('og-title').setAttribute('content', description);
-        document.getElementById('og-image').setAttribute('content', absoluteImageUrl);
-        document.getElementById('og-image:width').setAttribute('content', dimensions.width.toString());
-        document.getElementById('og-image:height').setAttribute('content', dimensions.height.toString());
-        
-        // Twitter Card 메타태그 업데이트
-        document.getElementById('twitter-url').setAttribute('content', pageUrl);
-        document.getElementById('twitter-title').setAttribute('content', description);
-        document.getElementById('twitter-image').setAttribute('content', absoluteImageUrl);
-        
-        console.log('메타태그 업데이트됨:', {
-            url: pageUrl,
-            image: absoluteImageUrl,
-            description: description,
-            dimensions: dimensions
-        });
-    } catch (error) {
-        console.error('이미지 크기 가져오기 실패:', error);
-        // 이미지 로드 실패 시 기본 크기 설정
-        document.getElementById('og-image:width').setAttribute('content', '1200');
-        document.getElementById('og-image:height').setAttribute('content', '630');
     }
 }
 
