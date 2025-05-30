@@ -4,13 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>오늘의 밈 캘린더</title>
+    
+    <!-- Open Graph 메타태그 -->
+    <meta property="og:title" content="오늘의 밈 캘린더" id="og-title">
+    <meta property="og:description" content="오늘의 특별한 밈을 확인해보세요!" id="og-description">
+    <meta property="og:image" id="og-image">
+    <meta property="og:type" content="website">
+    
+    <!-- Twitter Card 메타태그 -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="오늘의 밈 캘린더" id="twitter-title">
+    <meta name="twitter:description" content="오늘의 특별한 밈을 확인해보세요!" id="twitter-description">
+    <meta name="twitter:image" id="twitter-image">
+    
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
         <div class="date-container">
-            <p id="today-date"></p>
-            <p id="special-day">오늘은 ??? 날입니다</p>
+            <p id="today-date">오늘의 날짜: </p>
+            <p id="special-day">오늘은 ??? 날입니다!</p>
         </div>
         <div class="meme-container">
             <img id="meme-image" src="" alt="오늘의 밈">

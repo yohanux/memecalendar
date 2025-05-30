@@ -144,6 +144,16 @@ async function updateTodayMeme() {
         };
         imgElement.src = imageUrl;
         
+        // 메타태그 업데이트
+        const fullTitle = `오늘은 ${formattedSpecialDay} 입니다`;
+        document.getElementById('og-title').setAttribute('content', fullTitle);
+        document.getElementById('twitter-title').setAttribute('content', fullTitle);
+        
+        // 이미지 URL을 절대 경로로 변환
+        const absoluteImageUrl = new URL(imageUrl, window.location.href).href;
+        document.getElementById('og-image').setAttribute('content', absoluteImageUrl);
+        document.getElementById('twitter-image').setAttribute('content', absoluteImageUrl);
+        
     } else {
         console.log('오늘 날짜의 데이터를 찾지 못했습니다.');
         document.getElementById('special-day').textContent = '오늘은 특별한 날이 없습니다.';
