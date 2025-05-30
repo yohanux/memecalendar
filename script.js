@@ -150,14 +150,14 @@ async function updateTodayMeme() {
         // 이미지 로드 처리
         const imgElement = document.getElementById('meme-image');
         imgElement.onerror = () => {
-            const defaultImageUrl = '/resource/default.webp';
+            const defaultImageUrl = '/resource/thumbnail.png';
             imgElement.src = `${basePath}${defaultImageUrl}`;
         };
         imgElement.src = `${basePath}${imageUrl}`;
         
     } else {
         document.getElementById('special-day').textContent = '오늘은 특별한 날이 없습니다.';
-        const defaultImageUrl = '/resource/default.webp';
+        const defaultImageUrl = '/resource/thumbnail.png';
         document.getElementById('meme-image').src = `${basePath}${defaultImageUrl}`;
     }
 }
@@ -221,10 +221,37 @@ async function shareContent() {
     }
 }
 
-// 공유 버튼 이벤트 리스너 등록
+// 폭죽 효과 함수
+function triggerFireworks() {
+    // 화면 크기에 따라 파티클 수 조정
+    const particleCount = window.innerWidth < 768 ? 70 : 100;
+    
+    // 왼쪽에서 터지는 폭죽
+    confetti({
+        particleCount: particleCount,
+        spread: 60,
+        origin: { x: 0.2, y: 0.6 },
+        colors: ['#ff718d', '#fdbb2d', '#22c1c3', '#ff9a9e']
+    });
+    
+    // 오른쪽에서 터지는 폭죽
+    setTimeout(() => {
+        confetti({
+            particleCount: particleCount,
+            spread: 60,
+            origin: { x: 0.8, y: 0.6 },
+            colors: ['#ff718d', '#fdbb2d', '#22c1c3', '#ff9a9e']
+        });
+    }, 200);
+}
+
+// 페이지 로드시 실행
 document.addEventListener('DOMContentLoaded', () => {
     updateTodayMeme();
     
     const shareButton = document.getElementById('share-button');
     shareButton.addEventListener('click', shareContent);
+
+    // 페이지 로드 후 약간의 딜레이를 주고 폭죽 효과 실행
+    setTimeout(triggerFireworks, 500);
 }); 
