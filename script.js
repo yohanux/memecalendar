@@ -155,6 +155,8 @@ async function updateTodayMeme() {
         };
         imgElement.src = `${basePath}${imageUrl}`;
         
+        // 메타태그 업데이트
+        updateMetaTags(imageUrl, formattedSpecialDay);
     } else {
         document.getElementById('special-day').textContent = '오늘은 특별한 날이 없습니다.';
         const defaultImageUrl = '/resource/thumbnail.png';
