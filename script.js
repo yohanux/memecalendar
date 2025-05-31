@@ -237,14 +237,12 @@ function triggerFireworks() {
     });
     
     // 오른쪽에서 터지는 폭죽
-    setTimeout(() => {
-        confetti({
-            particleCount: particleCount,
-            spread: 60,
-            origin: { x: 0.8, y: 0.6 },
-            colors: ['#ff718d', '#fdbb2d', '#22c1c3', '#ff9a9e']
-        });
-    }, 200);
+    confetti({
+        particleCount: particleCount,
+        spread: 60,
+        origin: { x: 0.8, y: 0.6 },
+        colors: ['#ff718d', '#fdbb2d', '#22c1c3', '#ff9a9e']
+    });
 }
 
 // 페이지 로드시 실행
