@@ -233,7 +233,8 @@ function triggerFireworks() {
         particleCount: particleCount,
         spread: 60,
         origin: { x: 0.2, y: 0.6 },
-        colors: ['#ff718d', '#fdbb2d', '#22c1c3', '#ff9a9e']
+        colors: ['#ff718d', '#fdbb2d', '#22c1c3', '#ff9a9e'],
+        zIndex: 1001
     });
     
     // 오른쪽에서 터지는 폭죽
@@ -241,7 +242,8 @@ function triggerFireworks() {
         particleCount: particleCount,
         spread: 60,
         origin: { x: 0.8, y: 0.6 },
-        colors: ['#ff718d', '#fdbb2d', '#22c1c3', '#ff9a9e']
+        colors: ['#ff718d', '#fdbb2d', '#22c1c3', '#ff9a9e'],
+        zIndex: 1001
     });
 }
 
