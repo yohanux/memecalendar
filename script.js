@@ -140,6 +140,26 @@ async function updateTodayMeme() {
         const basePath = getBasePath();
         const imageUrl = `/resource/${monthStr}${dayStr}.webp`;
         
+        // none 타입 처리
+        if (format === 'none') {
+            const noneMessages = [
+                '오늘은 행복한 날 입니다',
+                '오늘은 나이스 데이 입니다'
+            ];
+            const randomMsg = noneMessages[Math.floor(Math.random() * noneMessages.length)];
+            document.getElementById('special-day').innerHTML = randomMsg;
+            // 이미지 로드 처리
+            const imgElement = document.getElementById('meme-image');
+            imgElement.onerror = () => {
+                const defaultImageUrl = '/resource/thumbnail.png';
+                imgElement.src = `${basePath}${defaultImageUrl}`;
+            };
+            imgElement.src = `${basePath}${imageUrl}`;
+            // 메타태그 업데이트
+            updateMetaTags(imageUrl, randomMsg);
+            return;
+        }
+        
         const formattedSpecialDay = formatSpecialDay(specialDay, years, format);
         if (window.innerWidth <= 809) {
             document.getElementById('special-day').innerHTML = formattedSpecialDay;
