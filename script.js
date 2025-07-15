@@ -142,12 +142,12 @@ async function updateTodayMeme() {
         
         // none 타입 처리
         if (format === 'none') {
-            const noneMessages = [
-                '오늘은 행복한 날 입니다',
-                '오늘은 나이스 데이 입니다'
-            ];
-            const randomMsg = noneMessages[Math.floor(Math.random() * noneMessages.length)];
-            document.getElementById('special-day').innerHTML = randomMsg;
+            // 모바일 디바이스를 위한 줄바꿈 처리
+            if (window.innerWidth <= 809) {
+                document.getElementById('special-day').innerHTML = `<span>오늘은</span><span><strong>${specialDay}</strong></span><span>입니다!</span>`;
+            } else {
+                document.getElementById('special-day').innerHTML = `오늘은 <strong>${specialDay}</strong> 입니다`;
+            }
             // 이미지 로드 처리
             const imgElement = document.getElementById('meme-image');
             imgElement.onerror = () => {
@@ -156,7 +156,7 @@ async function updateTodayMeme() {
             };
             imgElement.src = `${basePath}${imageUrl}`;
             // 메타태그 업데이트
-            updateMetaTags(imageUrl, randomMsg);
+            updateMetaTags(imageUrl, specialDay);
             return;
         }
         
